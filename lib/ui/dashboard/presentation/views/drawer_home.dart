@@ -70,8 +70,6 @@ class _DrawerTempState extends State<DrawerTemp> {
   @override
   void initState() {
     // getDataFromApi();
-
-
     closeDrawer();
     drawerItems.add(DrawerItems('Home', 'home'));
     drawerItems.add(DrawerItems('Add Money', 'add_money', isNew: true));
