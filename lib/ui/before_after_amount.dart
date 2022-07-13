@@ -141,12 +141,35 @@ class _BeforeAmountState extends State<BeforeAmount> {
                                       ),
                                       Padding(
                                         padding: EdgeInsets.only(left: 160.w),
-                                        child: Text(
-                                          '0.00',
-                                          style: _appTheme.customTextStyle(
-                                              fontWeightType: FontWeightType.regular,
-                                              fontSize: 160,
-                                              color: Colors.grey.shade300),
+                                        // child: Text(
+                                        //   '0.00',
+                                        //   style: _appTheme.customTextStyle(
+                                        //       fontWeightType: FontWeightType.regular,
+                                        //       fontSize: 160,
+                                        //       color: Colors.grey.shade300),
+                                        // ),
+                                        child:  Container(
+                                          width: 200,
+                                          height: 60,
+                                          child: TextField(
+                                            autofocus: false,
+                                            style: TextStyle(fontSize: 40.0, color: Color(0xFFbdc6cf)),
+                                            decoration: InputDecoration(
+                                              filled: true,
+                                              fillColor: Colors.transparent,
+                                              hintText: '0.00',
+                                              contentPadding:
+                                              const EdgeInsets.only(left: 14.0, bottom: 8.0, top: 8.0),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(color: Colors.white),
+                                                borderRadius: BorderRadius.circular(25.7),
+                                              ),
+                                              enabledBorder: UnderlineInputBorder(
+                                                borderSide: BorderSide(color: Colors.white),
+                                                borderRadius: BorderRadius.circular(25.7),
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -160,6 +183,7 @@ class _BeforeAmountState extends State<BeforeAmount> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Container(
+
                               height: 110.h,
                               width: 110.h,
                               decoration: BoxDecoration(

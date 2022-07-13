@@ -265,19 +265,20 @@ class _AccountSelectionState extends State<AccountSelection> {
                         padding: EdgeInsets.only(bottom: 20.h,left: 30.w,right: 30.w),
                         child: InkWell(
                           onTap: (){
-                            Navigator.pushNamed(
+                            Navigator.push(
                               context,
-                              RouteName.account2,
-                              arguments: BeforeAmount(
-                                fromAc: accountDataList[0].fromAccountNumber2,
-                                fromBal: accountDataList[0].accountBalance2,
-                                toAc: accountDataList[index+1].fromAccountNumber2,
-                                toBal: accountDataList[index+1].accountBalance2,
-                                usdToHkd:accountDataList[index+1].usdToHkd2,
-                                hkd: accountDataList[index+1].hkdAmount1,
-                                usd: accountDataList[index+1].usdAmount2,
-                                date: accountDataList[index+1].dateString2,
-                                submitDate: accountDataList[index+1].submitedDate2,
+                              MaterialPageRoute(
+                                builder: (context) =>  BeforeAmount(
+                                  fromAc: accountDataList[0].fromAccountNumber2,
+                                  fromBal: accountDataList[0].accountBalance2,
+                                  toAc: accountDataList[index+1].fromAccountNumber2,
+                                  toBal: accountDataList[index+1].accountBalance2,
+                                  usdToHkd:accountDataList[index+1].usdToHkd2,
+                                  hkd: accountDataList[index+1].hkdAmount1,
+                                  usd: accountDataList[index+1].usdAmount2,
+                                  date: accountDataList[index+1].dateString2,
+                                  submitDate: accountDataList[index+1].submitedDate2,
+                                ),
                               ),
                             );
                           },
