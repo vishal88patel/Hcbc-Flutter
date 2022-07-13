@@ -1,6 +1,11 @@
 class SVGPath {
   static const String cancel = 'assets/svg/cancel.svg';
   static const String menu = 'assets/svg/menu.svg';
+  static const String ammount = 'assets/svg/ammount.svg';
+  static const String back = 'assets/svg/back.svg';
+  static const String bothSideArrow = 'assets/svg/bothSideArrow.svg';
+  static const String calender = 'assets/svg/calender.svg';
+  static const String question = 'assets/svg/question.svg';
 }
 
 class PNGPath {
@@ -22,4 +27,6 @@ class PNGPath {
   static const String usdSelected = 'assets/png/usd_selected.png';
   static const String transfer = 'assets/png/transfer.png';
   static const String invert = 'assets/png/invert_power.png';
+  static const String upDown = 'assets/png/upDown.png';
+  static const String building = 'assets/png/building.png';
 }

@@ -6,13 +6,22 @@ import 'package:flutter_svg/svg.dart';
 import 'package:flutterprojectsetup/ui/common/asset_images.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-
 import '../../enum/font_type.dart';
 import 'common/routes.dart';
 import 'common/widgets/app_theme.dart';
 
+
 class TransferConfirm extends StatefulWidget {
-  const TransferConfirm({Key? key}) : super(key: key);
+  final String? fromAc;
+  final String? fromBal;
+  final String? toAc;
+  final String? toBal;
+  final String? usdToHkd;
+  final String? date;
+  final String? submitDate;
+  final String? hkd;
+  final String? usd;
+  const TransferConfirm({Key? key, this.fromAc, this.fromBal, this.toAc, this.toBal, this.usdToHkd, this.date, this.submitDate, this.hkd, this.usd}) : super(key: key);
 
   @override
   State<TransferConfirm> createState() => _TransferConfirmState();
@@ -196,7 +205,7 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                                 color: _appTheme.blackColor),
                                           ),
                                           Text(
-                                            '57486005641',
+                                            widget.fromAc.toString(),
                                             style: _appTheme.customTextStyle(
                                                 fontWeightType:
                                                     FontWeightType.bold,
@@ -229,7 +238,7 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                                 color: _appTheme.blackColor),
                                           ),
                                           Text(
-                                            '57486005641',
+                                            widget.toAc.toString(),
                                             style: _appTheme.customTextStyle(
                                                 fontWeightType:
                                                     FontWeightType.bold,
@@ -278,7 +287,7 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                                 color: _appTheme.blackColor),
                                           ),
                                           Text(
-                                            '50.00 Dr',
+                                            widget.hkd.toString(),
                                             style: _appTheme.customTextStyle(
                                                 fontWeightType: FontWeightType.bold,
                                                 fontSize: 55,
@@ -296,7 +305,7 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                                 color: _appTheme.blackColor),
                                           ),
                                           Text(
-                                            '6.35 Cr',
+                                            widget.usd.toString(),
                                             style: _appTheme.customTextStyle(
                                                 fontWeightType: FontWeightType.bold,
                                                 fontSize: 55,
@@ -335,7 +344,7 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                             child: Icon(CupertinoIcons.arrow_right_arrow_left, size: 60.h,color: Colors.black),
                                           ),
                                           Text(
-                                            'HKD 7.8725',
+                                            'HKD '+widget.usdToHkd.toString(),
                                             style: _appTheme.customTextStyle(
                                                 fontWeightType: FontWeightType.bold,
                                                 fontSize: 55,

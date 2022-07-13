@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutterprojectsetup/ui/common/asset_images.dart';
 import 'package:flutterprojectsetup/ui/common/routes.dart';
+import 'package:flutterprojectsetup/ui/transfer_confirm.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
@@ -12,13 +13,25 @@ import '../../enum/font_type.dart';
 import 'common/widgets/app_theme.dart';
 
 class BeforeAmount extends StatefulWidget {
-  const BeforeAmount({Key? key}) : super(key: key);
+  final String? fromAc;
+  final String? fromBal;
+  final String? toAc;
+  final String? toBal;
+  final String? usdToHkd;
+  final String? date;
+  final String? submitDate;
+  final String? hkd;
+  final String? usd;
+  const BeforeAmount({Key? key, this.fromAc, this.fromBal, this.toAc, this.toBal, this.usdToHkd, this.date, this.submitDate, this.hkd, this.usd}) : super(key: key);
 
   @override
   State<BeforeAmount> createState() => _BeforeAmountState();
 }
 
 class _BeforeAmountState extends State<BeforeAmount> {
+  final firstController = TextEditingController();
+  final secondController = TextEditingController();
+  bool after=false;
   @override
   Widget build(BuildContext context) {
     final _appTheme = AppTheme.of(context);
@@ -155,7 +168,7 @@ class _BeforeAmountState extends State<BeforeAmount> {
                                   borderRadius: BorderRadius.all(Radius.circular(50))),
                               child: Padding(
                                 padding:  EdgeInsets.all(6.h),
-                                child: Image.asset(PNGPath.transfer,color: Colors.black,),
+                                child: Image.asset(PNGPath.upDown,color: Colors.black,height: 60.h,width: 60.h,),
                               ),
                             ),
                             Padding(
@@ -182,9 +195,20 @@ class _BeforeAmountState extends State<BeforeAmount> {
                                           ),
                                           Padding(
                                             padding:  EdgeInsets.only(left: 14.w,right: 14.w),
-                                            child: Icon(CupertinoIcons.arrow_right_arrow_left, size: 60.h,color: Colors.black),
+                                            child: SvgPicture.asset(
+                                              SVGPath.bothSideArrow,
+                                              color: Colors.white,
+                                              height: 60.h,
+                                              width: 60.h,
+                                            ),
                                           ),
-                                          Text(
+                                          after?Text(
+                                            'USD '+widget.usdToHkd.toString(),
+                                            style: _appTheme.customTextStyle(
+                                                fontWeightType: FontWeightType.semiBold,
+                                                fontSize: 55,
+                                                color: _appTheme.blackColor),
+                                          ):Text(
                                             'USD 0',
                                             style: _appTheme.customTextStyle(
                                                 fontWeightType: FontWeightType.semiBold,
@@ -272,7 +296,7 @@ class _BeforeAmountState extends State<BeforeAmount> {
                                   Padding(
                                     padding: EdgeInsets.only(left: 50.w),
                                     child: Text(
-                                      'USD',
+                                      'USD ',
                                       style: _appTheme.customTextStyle(
                                           fontWeightType: FontWeightType.regular,
                                           fontSize: 55,
@@ -281,7 +305,23 @@ class _BeforeAmountState extends State<BeforeAmount> {
                                   ),
                                   Padding(
                                     padding: EdgeInsets.only(left: 160.w),
-                                    child: Text(
+                                    child:
+                                    /*TextFormField(
+                                      cursorColor: Colors.black,
+                                      keyboardType: TextInputType.number,
+                                      controller: firstController,
+                                      decoration: InputDecoration(
+                                          border: InputBorder.none,
+                                          focusedBorder: InputBorder.none,
+                                          enabledBorder: InputBorder.none,
+                                          errorBorder: InputBorder.none,
+                                          disabledBorder: InputBorder.none,
+                                          hintText:"0.00",
+                                        hintStyle: TextStyle(fontSize: 160,color: Colors.grey.shade300)
+                                      ),
+                                      style: TextStyle(fontSize: 160.0, color:Color(0xFF36B42D)),
+                                    )*/
+                                    Text(
                                       '0.00',
                                       style: _appTheme.customTextStyle(
                                           fontWeightType: FontWeightType.regular,
@@ -294,7 +334,7 @@ class _BeforeAmountState extends State<BeforeAmount> {
                             ],
                           ),
                         ),
-                        Padding(
+                        after?Padding(
                           padding:  EdgeInsets.only(right:60.w),
                           child: Card(
                             color: Color(0xFFCCE5D8),
@@ -340,7 +380,7 @@ class _BeforeAmountState extends State<BeforeAmount> {
                                               color: _appTheme.blackColor),
                                         ),
                                         Text(
-                                          'Tue, 05 Jul 2022',
+                                          widget.date.toString(),
                                           style: _appTheme.customTextStyle(
                                               fontWeightType: FontWeightType.bold,
                                               fontSize: 55,
@@ -353,8 +393,8 @@ class _BeforeAmountState extends State<BeforeAmount> {
                               ),
                             ),
                           ),
-                        ),
-                        Padding(
+                        ):Container(),
+                        after?Padding(
                           padding:  EdgeInsets.only(right:60.w,top: 60.h,left: 60.w),
                           child: Column(
                             children: [
@@ -415,8 +455,7 @@ class _BeforeAmountState extends State<BeforeAmount> {
 
                             ],
                           ),
-                        ),
-
+                        ):Container(),
                       ],
                     ),
                   ),
@@ -434,7 +473,7 @@ class _BeforeAmountState extends State<BeforeAmount> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text(
-                                      'Integrated Deposits Account(...5641)',
+                                      'Integrated Deposits Account('+widget.fromAc.toString()+")",
                                       style: _appTheme.customTextStyle(
                                           fontWeightType: FontWeightType.regular,
                                           fontSize: 55,
@@ -443,14 +482,14 @@ class _BeforeAmountState extends State<BeforeAmount> {
                                     Row(
                                       children: [
                                         Text(
-                                          'Balance HKD',
+                                          'Balance HKD ',
                                           style: _appTheme.customTextStyle(
                                               fontWeightType: FontWeightType.regular,
                                               fontSize: 55,
                                               color: _appTheme.blackColor),
                                         ),
                                         Text(
-                                          '154.87',
+                                          widget.fromBal.toString(),
                                           style: _appTheme.customTextStyle(
                                               fontWeightType: FontWeightType.bold,
                                               fontSize: 55,
@@ -480,7 +519,7 @@ class _BeforeAmountState extends State<BeforeAmount> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text(
-                                      'Integrated Deposits Account-sa...',
+                                      'Integrated Deposits Account('+widget.toAc.toString()+")",
                                       style: _appTheme.customTextStyle(
                                           fontWeightType: FontWeightType.regular,
                                           fontSize: 55,
@@ -496,7 +535,7 @@ class _BeforeAmountState extends State<BeforeAmount> {
                                               color: _appTheme.blackColor),
                                         ),
                                         Text(
-                                          '154.87',
+                                          widget.toBal.toString(),
                                           style: _appTheme.customTextStyle(
                                               fontWeightType: FontWeightType.bold,
                                               fontSize: 55,
@@ -531,7 +570,21 @@ class _BeforeAmountState extends State<BeforeAmount> {
         padding: EdgeInsets.only(bottom: 60.h,left: 30.w,right: 30.w),
         child: InkWell(
           onTap:(){
-            Get.toNamed(RouteName.account3);
+            Navigator.pushNamed(
+              context,
+              RouteName.account3,
+              arguments: TransferConfirm(
+                fromAc: widget.fromAc,
+                fromBal: widget.fromBal,
+                toAc: widget.toAc,
+                toBal:widget.toBal,
+                usdToHkd:widget.usdToHkd,
+                hkd: firstController.text.toString(),
+                usd: secondController.text.toString(),
+                date: widget.date,
+                submitDate: widget.submitDate,
+              ),
+            );
           } ,
           child: Card(
             color: Color(0xFF36B42D),

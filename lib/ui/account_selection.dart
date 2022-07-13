@@ -1,15 +1,21 @@
+import 'dart:convert';
+
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:flutterprojectsetup/ui/before_after_amount.dart';
 import 'package:flutterprojectsetup/ui/common/asset_images.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-
+import 'package:http/http.dart' as http;
 import '../../enum/font_type.dart';
+import '../models/account_model.dart';
 import 'common/routes.dart';
 import 'common/widgets/app_theme.dart';
+import 'global_controller.dart';
 
 class AccountSelection extends StatefulWidget {
   const AccountSelection({Key? key}) : super(key: key);
@@ -19,9 +25,47 @@ class AccountSelection extends StatefulWidget {
 }
 
 class _AccountSelectionState extends State<AccountSelection> {
+  List<AccountData> accountDataList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      getAccountData();
+    });
+  }
+
+  Future<List<AccountData>> getAccountData() async {
+    print("Api Calling");
+    var result = await http.get(Uri.parse('https://sheetdb.io/api/v1/rzzo6an2kpyb0'));
+    print(result.body);
+    response = result.body;
+    accountDataList = (jsonDecode(response) as List<dynamic>)
+        .whereType<Map<String, dynamic>>()
+        .map((e) => AccountData.fromJson(e))
+        .whereType<AccountData>()
+        .toList();
+    accountData = accountDataList;
+    print(accountData.toString());
+    setState(() {});
+    return [];
+  }
+
   @override
   Widget build(BuildContext context) {
     final _appTheme = AppTheme.of(context);
+    if (accountDataList.isEmpty) {
+      return Container(
+        color: Colors.grey[300],
+        child: Center(
+          child: Image.asset(
+            'assets/gif/loading.gif',
+            height:500,
+            width:500,
+          ),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -161,7 +205,7 @@ class _AccountSelectionState extends State<AccountSelection> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                'Integrated Deposits Account(...5641)',
+                                'Integrated Deposits Account('+accountDataList[0].fromAccountNumber2.toString()+")",
                                 style: _appTheme.customTextStyle(
                                     fontWeightType: FontWeightType.regular,
                                     fontSize: 55,
@@ -170,14 +214,14 @@ class _AccountSelectionState extends State<AccountSelection> {
                               Row(
                                 children: [
                                   Text(
-                                    'Balance HKD',
+                                    'Balance HKD ',
                                     style: _appTheme.customTextStyle(
                                         fontWeightType: FontWeightType.regular,
                                         fontSize: 55,
                                         color: _appTheme.blackColor),
                                   ),
                                   Text(
-                                    '154.87',
+                                    accountDataList[0].accountBalance2.toString(),
                                     style: _appTheme.customTextStyle(
                                         fontWeightType: FontWeightType.bold,
                                         fontSize: 55,
@@ -213,7 +257,7 @@ class _AccountSelectionState extends State<AccountSelection> {
             ),
             Expanded(
               child: ListView.builder(
-                  itemCount: 10,
+                  itemCount: accountDataList.length-1,
                   shrinkWrap: true,
                   itemBuilder: (BuildContext context, int index) {
                     return
@@ -221,7 +265,21 @@ class _AccountSelectionState extends State<AccountSelection> {
                         padding: EdgeInsets.only(bottom: 20.h,left: 30.w,right: 30.w),
                         child: InkWell(
                           onTap: (){
-                            Get.toNamed(RouteName.account2);
+                            Navigator.pushNamed(
+                              context,
+                              RouteName.account2,
+                              arguments: BeforeAmount(
+                                fromAc: accountDataList[0].fromAccountNumber2,
+                                fromBal: accountDataList[0].accountBalance2,
+                                toAc: accountDataList[index+1].fromAccountNumber2,
+                                toBal: accountDataList[index+1].accountBalance2,
+                                usdToHkd:accountDataList[index+1].usdToHkd2,
+                                hkd: accountDataList[index+1].hkdAmount1,
+                                usd: accountDataList[index+1].usdAmount2,
+                                date: accountDataList[index+1].dateString2,
+                                submitDate: accountDataList[index+1].submitedDate2,
+                              ),
+                            );
                           },
                           child: Card(
                             color: Colors.white,
@@ -267,7 +325,7 @@ class _AccountSelectionState extends State<AccountSelection> {
                                                   color: _appTheme.blackColor),
                                             ),
                                             Text(
-                                              '574 860 05640',
+                                              accountDataList[index+1].fromAccountNumber2.toString(),
                                               style: _appTheme.customTextStyle(
                                                   fontWeightType: FontWeightType.bold,
                                                   fontSize: 55,
@@ -293,7 +351,7 @@ class _AccountSelectionState extends State<AccountSelection> {
                                           Padding(
                                             padding: EdgeInsets.only(left: 10.w),
                                             child: Text(
-                                              "0.00",
+                                              accountDataList[index+1].accountBalance2.toString(),
                                               style: _appTheme.customTextStyle(
                                                   fontWeightType: FontWeightType.bold,
                                                   fontSize: 50,
