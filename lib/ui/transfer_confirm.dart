@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:action_slider/action_slider.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +12,7 @@ import 'package:get/get_core/src/get_main.dart';
 import '../../enum/font_type.dart';
 import 'common/routes.dart';
 import 'common/widgets/app_theme.dart';
-
+import 'global_controller.dart';
 
 class TransferConfirm extends StatefulWidget {
   final String? fromAc;
@@ -21,13 +24,58 @@ class TransferConfirm extends StatefulWidget {
   final String? submitDate;
   final String? hkd;
   final String? usd;
-  const TransferConfirm({Key? key, this.fromAc, this.fromBal, this.toAc, this.toBal, this.usdToHkd, this.date, this.submitDate, this.hkd, this.usd}) : super(key: key);
+
+  const TransferConfirm(
+      {Key? key,
+      this.fromAc,
+      this.fromBal,
+      this.toAc,
+      this.toBal,
+      this.usdToHkd,
+      this.date,
+      this.submitDate,
+      this.hkd,
+      this.usd})
+      : super(key: key);
 
   @override
   State<TransferConfirm> createState() => _TransferConfirmState();
 }
 
 class _TransferConfirmState extends State<TransferConfirm> {
+  final _controller = ActionSliderController();
+  bool transfer = false;
+  bool loader = false;
+  Timer? _timer;
+  int _time = 60;
+  bool resend = false;
+  bool button = false;
+
+  @override
+  void initState() {
+    startTimer();
+    super.initState();
+  }
+
+  void startTimer() {
+    const oneSec = Duration(seconds: 1);
+    _timer = Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (_time == 0) {
+          setState(() {
+            _time = 60;
+            resend = true;
+          });
+        } else {
+          setState(() {
+            _time--;
+          });
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final _appTheme = AppTheme.of(context);
@@ -37,8 +85,14 @@ class _TransferConfirmState extends State<TransferConfirm> {
         child: SafeArea(
           child: Stack(
             children: [
+              /*SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: 300,
+                child: Image.asset(PNGPath.building,height:290, width: MediaQuery.of(context).size.width, fit: BoxFit.fitHeight),
+              ),*/
+              Image.asset(PNGPath.building, fit: BoxFit.fitHeight),
               Container(
-                color: Colors.blue,
+                color: Colors.transparent,
                 child: Column(
                   children: [
                     SizedBox(
@@ -52,50 +106,135 @@ class _TransferConfirmState extends State<TransferConfirm> {
                           child: Icon(CupertinoIcons.chevron_back,
                               size: 110.h, color: Colors.white),
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(right: 20.w),
-                          child: Icon(Icons.close,
-                              size: 110.h, color: Colors.white),
+                        InkWell(
+                          onTap: () {
+                            transfer ? Get.toNamed(RouteName.dashboard) : {};
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.only(right: 20.w),
+                            child: Icon(Icons.close,
+                                size: 110.h, color: Colors.white),
+                          ),
                         ),
                       ],
                     ),
-                    SizedBox(
-                      height: 140.h,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Reference No : ',
-                          style: _appTheme.customTextStyle(
-                              fontWeightType: FontWeightType.regular,
-                              fontSize: 48,
-                              color: _appTheme.whiteColor),
-                        ),
-                        Text(
-                          'HK22070500178394940000',
-                          style: _appTheme.customTextStyle(
-                              fontWeightType: FontWeightType.regular,
-                              fontSize: 48,
-                              color: _appTheme.whiteColor),
-                        ),
-                      ],
-                    ),
+                    transfer
+                        ? SizedBox(
+                            height: 160.h,
+                          )
+                        : Container(
+                            height: 140.h,
+                            width: 140.h,
+                            decoration: BoxDecoration(
+                                color: Colors.blue,
+                                border: Border.all(color: Colors.blue),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(50))),
+                            child: Center(
+                                child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Container(
+                                  height: 30.h,
+                                  width: 30.h,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(50))),
+                                ),
+                                Container(
+                                  height: 30.h,
+                                  width: 30.h,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(50))),
+                                ),
+                                Container(
+                                  height: 30.h,
+                                  width: 30.h,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(50))),
+                                )
+                              ],
+                            )),
+                          ),
+                    transfer
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Reference No : ',
+                                style: _appTheme.customTextStyle(
+                                    fontWeightType: FontWeightType.regular,
+                                    fontSize: 48,
+                                    color: _appTheme.whiteColor),
+                              ),
+                              Text(
+                                'HK22070500178394940000',
+                                style: _appTheme.customTextStyle(
+                                    fontWeightType: FontWeightType.regular,
+                                    fontSize: 48,
+                                    color: _appTheme.whiteColor),
+                              ),
+                            ],
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Transfer Confirmation',
+                                style: _appTheme.customTextStyle(
+                                    fontWeightType: FontWeightType.regular,
+                                    fontSize: 75,
+                                    color: _appTheme.whiteColor),
+                              ),
+                            ],
+                          ),
                     SizedBox(
                       height: 10.h,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Transfer Confirmation',
-                          style: _appTheme.customTextStyle(
-                              fontWeightType: FontWeightType.regular,
-                              fontSize: 75,
-                              color: _appTheme.whiteColor),
-                        ),
-                      ],
-                    ),
+                    transfer
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Transfer Completed',
+                                style: _appTheme.customTextStyle(
+                                    fontWeightType: FontWeightType.regular,
+                                    fontSize: 75,
+                                    color: _appTheme.whiteColor),
+                              ),
+                            ],
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Guaranteed FX rate expires in ',
+                                style: _appTheme.customTextStyle(
+                                    fontWeightType: FontWeightType.regular,
+                                    fontSize: 45,
+                                    color: _appTheme.whiteColor),
+                              ),
+                              Text(
+                                _time.toString(),
+                                style: _appTheme.customTextStyle(
+                                    fontWeightType: FontWeightType.regular,
+                                    fontSize: 45,
+                                    color: _appTheme.whiteColor),
+                              ),
+                              Text(
+                                ' seconds',
+                                style: _appTheme.customTextStyle(
+                                    fontWeightType: FontWeightType.regular,
+                                    fontSize: 45,
+                                    color: _appTheme.whiteColor),
+                              ),
+                            ],
+                          ),
                     SizedBox(
                       height: 500.h,
                     ),
@@ -153,7 +292,7 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                                   Radius.circular(50))),
                                         ),
                                         Container(
-                                          height: 360.h,
+                                          height: 350.h,
                                           width: 5.w,
                                           color: Colors.black,
                                         ),
@@ -166,9 +305,12 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                                   color: Colors.black),
                                               borderRadius: BorderRadius.all(
                                                   Radius.circular(50))),
-                                          child: Image.asset(
-                                            PNGPath.tick,
-                                            color: Colors.white,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(2.0),
+                                            child: Image.asset(
+                                              PNGPath.tick,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -193,7 +335,10 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                             style: _appTheme.customTextStyle(
                                                 fontWeightType:
                                                     FontWeightType.regular,
-                                                fontSize: 55,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    7,
                                                 color: _appTheme.blackColor),
                                           ),
                                           Text(
@@ -201,7 +346,10 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                             style: _appTheme.customTextStyle(
                                                 fontWeightType:
                                                     FontWeightType.regular,
-                                                fontSize: 55,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    7,
                                                 color: _appTheme.blackColor),
                                           ),
                                           Text(
@@ -209,7 +357,10 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                             style: _appTheme.customTextStyle(
                                                 fontWeightType:
                                                     FontWeightType.bold,
-                                                fontSize: 55,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    7,
                                                 color: _appTheme.blackColor),
                                           ),
                                         ],
@@ -226,7 +377,10 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                             style: _appTheme.customTextStyle(
                                                 fontWeightType:
                                                     FontWeightType.regular,
-                                                fontSize: 55,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    7,
                                                 color: _appTheme.blackColor),
                                           ),
                                           Text(
@@ -234,7 +388,10 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                             style: _appTheme.customTextStyle(
                                                 fontWeightType:
                                                     FontWeightType.regular,
-                                                fontSize: 55,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    7,
                                                 color: _appTheme.blackColor),
                                           ),
                                           Text(
@@ -242,7 +399,10 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                             style: _appTheme.customTextStyle(
                                                 fontWeightType:
                                                     FontWeightType.bold,
-                                                fontSize: 55,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    7,
                                                 color: _appTheme.blackColor),
                                           ),
                                         ],
@@ -253,28 +413,33 @@ class _TransferConfirmState extends State<TransferConfirm> {
                               ],
                             ),
                             SizedBox(
-                              height: 200.h,
+                              height: 140.h,
                             ),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
-                                    height: 50.h,
-                                    width: 50.h,
-                                    child: Image.asset(
-                                      PNGPath.invert,
+                                    height: 60.h,
+                                    width: 60.h,
+                                    child: SvgPicture.asset(
+                                      SVGPath.ammount,
                                       color: Colors.black,
                                     )),
                                 Padding(
-                                  padding: EdgeInsets.only(left: 50.w),
+                                  padding: EdgeInsets.only(left: 45.w),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'AMOUNT',
                                         style: _appTheme.customTextStyle(
-                                            fontWeightType: FontWeightType.regular,
-                                            fontSize: 55,
+                                            fontWeightType:
+                                                FontWeightType.regular,
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                8,
                                             color: _appTheme.blackColor),
                                       ),
                                       Row(
@@ -282,15 +447,23 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                           Text(
                                             'HKD ',
                                             style: _appTheme.customTextStyle(
-                                                fontWeightType: FontWeightType.regular,
-                                                fontSize: 55,
+                                                fontWeightType:
+                                                    FontWeightType.regular,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    6.5,
                                                 color: _appTheme.blackColor),
                                           ),
                                           Text(
                                             widget.hkd.toString(),
                                             style: _appTheme.customTextStyle(
-                                                fontWeightType: FontWeightType.bold,
-                                                fontSize: 55,
+                                                fontWeightType:
+                                                    FontWeightType.bold,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    6.5,
                                                 color: _appTheme.blackColor),
                                           ),
                                         ],
@@ -298,17 +471,85 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                       Row(
                                         children: [
                                           Text(
-                                            'USG ',
+                                            'USD ',
                                             style: _appTheme.customTextStyle(
-                                                fontWeightType: FontWeightType.regular,
-                                                fontSize: 55,
+                                                fontWeightType:
+                                                    FontWeightType.regular,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    6.5,
                                                 color: _appTheme.blackColor),
                                           ),
                                           Text(
                                             widget.usd.toString(),
                                             style: _appTheme.customTextStyle(
-                                                fontWeightType: FontWeightType.bold,
-                                                fontSize: 55,
+                                                fontWeightType:
+                                                    FontWeightType.bold,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    6.5,
+                                                color: _appTheme.blackColor),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: 70.h,
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Exchange Rate',
+                                            style: _appTheme.customTextStyle(
+                                                fontWeightType:
+                                                    FontWeightType.regular,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    9,
+                                                color: _appTheme.blackColor),
+                                          ),
+                                          Text(
+                                            '___________ ',
+                                            style: _appTheme.customTextStyle(
+                                                fontWeightType:
+                                                    FontWeightType.regular,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    8,
+                                                color: _appTheme.blackColor),
+                                          ),
+                                          Text(
+                                            'USD 1',
+                                            style: _appTheme.customTextStyle(
+                                                fontWeightType:
+                                                    FontWeightType.regular,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    7,
+                                                color: _appTheme.blackColor),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                left: 14.w, right: 14.w),
+                                            child: Image.asset(
+                                              PNGPath.bothside,
+                                              height: 60.h,
+                                              width: 60.h,
+                                            ),
+                                          ),
+                                          Text(
+                                            "HKD " + widget.usdToHkd.toString(),
+                                            style: _appTheme.customTextStyle(
+                                                fontWeightType:
+                                                    FontWeightType.bold,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    7,
                                                 color: _appTheme.blackColor),
                                           ),
                                         ],
@@ -319,118 +560,106 @@ class _TransferConfirmState extends State<TransferConfirm> {
                                       Row(
                                         children: [
                                           Text(
-                                            'Exchange Rate',
+                                            'Fx Tier',
                                             style: _appTheme.customTextStyle(
-                                                fontWeightType: FontWeightType.regular,
-                                                fontSize: 45,
+                                                fontWeightType:
+                                                    FontWeightType.regular,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    9,
                                                 color: _appTheme.blackColor),
                                           ),
                                           Text(
-                                            '___________ ',
+                                            '________________________________________',
                                             style: _appTheme.customTextStyle(
-                                                fontWeightType: FontWeightType.bold,
-                                                fontSize: 55,
+                                                fontWeightType:
+                                                    FontWeightType.regular,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    8,
                                                 color: _appTheme.blackColor),
                                           ),
                                           Text(
-                                            'USD 1',
+                                            'Silver',
                                             style: _appTheme.customTextStyle(
-                                                fontWeightType: FontWeightType.regular,
-                                                fontSize: 55,
-                                                color: _appTheme.blackColor),
-                                          ),
-                                          Padding(
-                                            padding:  EdgeInsets.only(left: 14.w,right: 14.w),
-                                            child: Icon(CupertinoIcons.arrow_right_arrow_left, size: 60.h,color: Colors.black),
-                                          ),
-                                          Text(
-                                            'HKD '+widget.usdToHkd.toString(),
-                                            style: _appTheme.customTextStyle(
-                                                fontWeightType: FontWeightType.bold,
-                                                fontSize: 55,
+                                                fontWeightType:
+                                                    FontWeightType.regular,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    9,
                                                 color: _appTheme.blackColor),
                                           ),
                                         ],
-                                      ),
-                                      SizedBox(
-                                        height: 10.h,
-                                      ),
-                                      Row(children: [
-                                        Text(
-                                          'Fx Tier',
-                                          style: _appTheme.customTextStyle(
-                                              fontWeightType: FontWeightType.regular,
-                                              fontSize: 45,
-                                              color: _appTheme.blackColor),
-                                        ),
-                                        Text(
-                                          '__________________________ ',
-                                          style: _appTheme.customTextStyle(
-                                              fontWeightType: FontWeightType.bold,
-                                              fontSize: 55,
-                                              color: _appTheme.blackColor),
-                                        ),
-                                        Text(
-                                          'Silver',
-                                          style: _appTheme.customTextStyle(
-                                              fontWeightType: FontWeightType.regular,
-                                              fontSize: 45,
-                                              color: _appTheme.blackColor),
-                                        ),
-                                      ],)
+                                      )
                                     ],
                                   ),
                                 ),
                               ],
                             ),
                             SizedBox(
-                              height: 70.h,
+                              height: 90.h,
                             ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                    height: 50.h,
-                                    width: 50.h,
-                                    child: Image.asset(
-                                      PNGPath.invert,
-                                      color: Colors.black,
-                                    )),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 50.w),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                            transfer
+                                ? Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        'SUBMITTED AT',
-                                        style: _appTheme.customTextStyle(
-                                            fontWeightType: FontWeightType.regular,
-                                            fontSize: 55,
-                                            color: _appTheme.blackColor),
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            '5 July 2022, ',
-                                            style: _appTheme.customTextStyle(
-                                                fontWeightType: FontWeightType.regular,
-                                                fontSize: 55,
-                                                color: _appTheme.blackColor),
-                                          ),
-                                          Text(
-                                            '18:23 PM',
-                                            style: _appTheme.customTextStyle(
-                                                fontWeightType: FontWeightType.regular,
-                                                fontSize: 55,
-                                                color: _appTheme.blackColor),
-                                          ),
-                                        ],
+                                      Container(
+                                          height: 55.h,
+                                          width: 60.h,
+                                          child: Image.asset(
+                                            PNGPath.calender,
+                                            color: Colors.black,
+                                          )),
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 50.w),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'SUBMITTED AT',
+                                              style: _appTheme.customTextStyle(
+                                                  fontWeightType:
+                                                      FontWeightType.regular,
+                                                  fontSize:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width /
+                                                          8,
+                                                  color: _appTheme.blackColor),
+                                            ),
+                                            SizedBox(
+                                              height: 25.h,
+                                            ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  widget.submitDate.toString(),
+                                                  style:
+                                                      _appTheme.customTextStyle(
+                                                          fontWeightType:
+                                                              FontWeightType
+                                                                  .regular,
+                                                          fontSize: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width /
+                                                              7,
+                                                          color: _appTheme
+                                                              .blackColor),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
-                                  ),
-                                ),
-                              ],
-                            )
+                                  )
+                                : Container()
                           ],
                         ),
                       ),
@@ -444,38 +673,131 @@ class _TransferConfirmState extends State<TransferConfirm> {
       ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.only(bottom: 60.h, left: 30.w, right: 30.w),
-        child: Card(
-          elevation: 0,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(4)),
-            side: BorderSide(
-              color: Color(0xFF36B42D),
-              width: 1.0,
-            ),
-          ),
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            height: 200.h,
-            child: Center(
-              child: GestureDetector(
-                onTap: (){
-                  Get.toNamed(RouteName.slider);
-                },
-                child: Text(
-                  'MAKE ANOTHER TRANSFER',
-                  style: _appTheme.customTextStyle(
-                      fontWeightType: FontWeightType.regular,
-                      fontSize: 75,
-                      color: Color(0xFF36B42D)),
+        child: button
+            ? Card(
+                elevation: 0,
+                color: loader ? Colors.grey : Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                  side: BorderSide(
+                    color: loader ? Colors.grey : Color(0xFF36B42D),
+                    width: 1.0,
+                  ),
                 ),
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 200.h,
+                  child: Center(
+                    child: loader
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                'CONFIRMING...',
+                                style: _appTheme.customTextStyle(
+                                    fontWeightType: FontWeightType.regular,
+                                    fontSize: 75,
+                                    color: Colors.white),
+                              ),
+                            ],
+                          )
+                        : Text(
+                            'MAKE ANOTHER TRANSFER',
+                            style: _appTheme.customTextStyle(
+                                fontWeightType: FontWeightType.regular,
+                                fontSize: 75,
+                                color: Color(0xFF36B42D)),
+                          ),
+                  ),
+                ),
+              )
+            : ActionSlider.custom(
+                sliderBehavior: SliderBehavior.move,
+                width: MediaQuery.of(context).size.width,
+                controller: _controller,
+                height: 200.h,
+                toggleWidth: MediaQuery.of(context).size.width / 4.5,
+                toggleMargin: EdgeInsets.zero,
+                backgroundColor: Colors.green,
+                foregroundChild: Padding(
+                  padding: EdgeInsets.all(8.h),
+                  child: DecoratedBox(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5)),
+                      child: Icon(Icons.arrow_forward,
+                          size: 120.h, color: Color(0xFF36B42D))),
+                ),
+                foregroundBuilder: (context, state, child) => child!,
+                outerBackgroundBuilder: (context, state, child) => Card(
+                  margin: EdgeInsets.zero,
+                  color: Color.lerp(
+                      Color(0xFF36B42D), Colors.green, state.position),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          'SWIPE TO TRANSFER',
+                          style: _appTheme.customTextStyle(
+                              fontWeightType: FontWeightType.regular,
+                              fontSize: 65,
+                              color: _appTheme.whiteColor),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              left: MediaQuery.of(context).size.width / 7,
+                              right: 40.w),
+                          child: Container(
+                            height: 110.h,
+                            width: 110.h,
+                            decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                border: Border.all(color: Colors.white),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(50))),
+                            child: Center(
+                              child: Text(
+                                _time.toString(),
+                                style: _appTheme.customTextStyle(
+                                    fontWeightType: FontWeightType.regular,
+                                    fontSize: 65,
+                                    color: _appTheme.whiteColor),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                backgroundBorderRadius: BorderRadius.circular(5.0),
+                action: (controller) async {
+                  controller.loading(); //starts loading animation
+                  controller.success();
+                  loader = true;
+                  button = true;
+                  setState(() {
+                    _timer!.cancel();
+                    newApi = true;
+                    Future.delayed(Duration(milliseconds: 2000), () {
+                      setState(() {
+                        loader = false;
+                        transfer = true;
+                      });
+                    });
+                  });
+                },
               ),
-            ),
-          ),
-        ),
       ),
       floatingActionButton: InkWell(
-        onTap: (){
-        },
+        onTap: () {},
         child: Image.asset(
           PNGPath.message,
           height: 300.h,

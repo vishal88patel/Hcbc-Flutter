@@ -33,7 +33,7 @@ class _DrawerTempState extends State<DrawerTemp> {
   late double yOffset;
   late double scaleFactor;
   late bool isDrawerOpen;
-
+  var position=0;
   void openDrawer() {
     setState(() {
       xOffset = 250;
@@ -54,7 +54,7 @@ class _DrawerTempState extends State<DrawerTemp> {
 
   Future<List<TransactionList>> getDataFromApi() async {
     print("Api Calling");
-    var result = await http.get(Uri.parse('https://sheetdb.io/api/v1/z4o85gcvwqcyx'));
+    var result = newApi?await http.get(Uri.parse('https://sheetdb.io/api/v1/ae11a9k0p3bko')):await http.get(Uri.parse('https://sheetdb.io/api/v1/z4o85gcvwqcyx'));
     print(result.body);
     response = result.body;
     transactionList = (jsonDecode(response) as List<dynamic>)
@@ -93,12 +93,12 @@ class _DrawerTempState extends State<DrawerTemp> {
     drawerItems.add(DrawerItems('FAQs', 'faq'));
     drawerItems.add(DrawerItems('About', 'about'));
 
-    // payment.add(DrawerItems('Scan & Pay', ''));
-    // payment.add(DrawerItems('Bills Payment', ''));
-    // payment.add(DrawerItems('Pay to SC Credit Cards', ''));
-    // payment.add(DrawerItems('Click To Pay', '', isNew: true));
-    // payment.add(DrawerItems('View Payment History', ''));
-    // payment.add(DrawerItems('View Pending eDDA', ''));
+    payment.add(DrawerItems('Own Accounts', ''));
+    payment.add(DrawerItems('Local Accounts', ''));
+    payment.add(DrawerItems('International / Cross\nBorder Transfer', '',isNew: true));
+    payment.add(DrawerItems('Top Up AlipayHK', ''));
+    payment.add(DrawerItems('Top Up Octopus Wallet', ''));
+    payment.add(DrawerItems('View Transfer History', ''));
     super.initState();
   }
 
@@ -135,6 +135,7 @@ class _DrawerTempState extends State<DrawerTemp> {
                       },
                       isViewPaymentHistorySelected: isViewPaymentHistorySelected,
                       onOtherTap: () {
+                        print("clickkkkkk");
                         setState(() {
                           isViewPaymentHistorySelected = false;
                         });
@@ -565,7 +566,7 @@ class _DrawerTempState extends State<DrawerTemp> {
                     ),
                     floatingActionButton: GestureDetector(
                       onTap: (){
-                        Get.toNamed(RouteName.account);
+
                       },
                       child: Image.asset(
                         PNGPath.message,
@@ -613,7 +614,7 @@ class _DrawerTempState extends State<DrawerTemp> {
 // }
 }
 
-class DrawerBody extends StatelessWidget {
+class DrawerBody extends StatefulWidget {
   final List<DrawerItems> drawerItems;
   final List<DrawerItems> payments;
   final List<TransactionList> transactionList;
@@ -631,6 +632,15 @@ class DrawerBody extends StatelessWidget {
       : super(key: key);
 
   @override
+  State<DrawerBody> createState() => _DrawerBodyState();
+}
+
+class _DrawerBodyState extends State<DrawerBody> {
+  bool isPayment = false;
+  bool show = false;
+  bool isHome = false;
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
@@ -645,7 +655,7 @@ class DrawerBody extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: Text(
-              transactionList[0].username ?? '',
+              widget.transactionList[0].username ?? '',
               style: TextStyle(color: Colors.white70, fontSize: 20),
             ),
           ),
@@ -694,7 +704,7 @@ class DrawerBody extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 15),
             child: Text(
-              transactionList[0].lastLogin ?? '',
+              widget.transactionList[0].lastLogin ?? '',
               style: TextStyle(color: Colors.white, fontSize: 10),
             ),
           ),
@@ -702,89 +712,112 @@ class DrawerBody extends StatelessWidget {
           Expanded(
             child: ListView.separated(
               padding: EdgeInsets.only(bottom: 50),
-              itemCount: drawerItems.length,
+              itemCount: widget.drawerItems.length,
               itemBuilder: (_, index) {
-                bool isPayment = false;
-                // drawerItems[index].name.toLowerCase() == 'payments';
+                if(widget.drawerItems[index].name.toLowerCase() == 'transfer'){
+                  isPayment = true;
+                }else if(widget.drawerItems[index].name.toLowerCase()=="home"){
+                  isHome=true;
+                }
+                else{
+                  isPayment = false;
+                  isHome=false;
+                }
                 return Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       InkWell(
-                        onTap: onOtherTap,
+                        onTap: widget.onOtherTap,
                         child: Container(
                           height: 35,
                           margin: EdgeInsets.only(right: 20),
                           decoration: BoxDecoration(
-                              color: isPayment
-                                  ? Colors.white24
-                                  : Colors.transparent,
+                            //color: Colors.transparent,
+                              color: isHome ? Colors.white24 : Colors.transparent,
                               borderRadius: BorderRadius.only(
                                   topRight: Radius.circular(20),
                                   bottomRight: Radius.circular(20))),
-                          child: Row(
-                            children: [
-                              if (drawerItems[index].name.toLowerCase() ==
-                                  'home')
-                                ColoredBox(
-                                    color: Colors.white,
-                                    child: SizedBox(height: 30, width: 3)),
-                              SizedBox(width: 20),
-                              Image.asset(
-                                  'assets/png/${drawerItems[index].icon}.png',
-                                  width: 18,
-                                  height: 18),
-                              SizedBox(width: 12),
-                              Text(
-                                drawerItems[index].name,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              if (drawerItems[index].isNew) ...[
-                                SizedBox(width: 10),
-                                _New()
-                              ]
-                            ],
+                          child: InkWell(
+                            onTap: (){
+                              if(widget.drawerItems[index].name.toLowerCase() == 'transfer'){
+                                setState((){
+                                  if(show==false){
+                                    show = true;
+                                  }
+                                  else{
+                                    show=false;
+                                  }
+                                });
+                              }
+                              else{
+                                setState((){
+                                  show = false;
+                                });
+                              }
+                            },
+                            child: Row(
+                              children: [
+                                if (widget.drawerItems[index].name.toLowerCase() ==
+                                    'home')
+                                  ColoredBox(
+                                      color: Colors.white,
+                                      child: SizedBox(height: 30, width: 3)),
+                                SizedBox(width: 20),
+                                Image.asset(
+                                    'assets/png/${widget.drawerItems[index].icon}.png',
+                                    width: 18,
+                                    height: 18),
+                                SizedBox(width: 12),
+                                Text(
+                                  widget.drawerItems[index].name,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                if (widget.drawerItems[index].isNew) ...[
+                                  SizedBox(width: 10),
+                                  _New()
+                                ]
+                              ],
+                            ),
                           ),
                         ),
                       ),
                       if (isPayment)
-                        ListView.builder(
+                        show?ListView.builder(
                             shrinkWrap: true,
                             padding: EdgeInsets.only(top: 10),
                             physics: NeverScrollableScrollPhysics(),
-                            itemCount: payments.length,
+                            itemCount: widget.payments.length,
                             itemBuilder: (_, innerIndex) {
                               return InkWell(
                                 onTap:
-                                payments[innerIndex].name.toLowerCase() ==
-                                    'view payment history'
-                                    ? onPaymentHistoryTap
-                                    : () {},
+                                widget.payments[innerIndex].name.toLowerCase() == 'own accounts'
+                                    ? (){Get.toNamed(RouteName.account);} : () {},
                                 child: Row(
                                   children: [
                                     SizedBox(width: 30),
                                     ColoredBox(
                                         color: Colors.white38,
                                         child: SizedBox(
-                                            height: 30,
-                                            width: payments[innerIndex]
+                                            height: 150.h,
+                                            width: widget.payments[innerIndex]
                                                 .name
                                                 .toLowerCase() ==
                                                 'view payment history' &&
-                                                isViewPaymentHistorySelected
+                                                widget.isViewPaymentHistorySelected
                                                 ? 2
                                                 : 0.5)),
                                     SizedBox(width: 20),
-                                    Text(payments[innerIndex].name,
+                                    Text(widget.payments[innerIndex].name,
                                         style: TextStyle(color: Colors.white)),
                                     SizedBox(width: 10),
-                                    if (payments[innerIndex].isNew) _New()
+                                    if (widget.payments[innerIndex].isNew) _New()
                                   ],
                                 ),
                               );
-                            })
+                            }):Container(),
                     ],
                   ),
                 );

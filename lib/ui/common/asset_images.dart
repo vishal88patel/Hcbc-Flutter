@@ -29,4 +29,6 @@ class PNGPath {
   static const String invert = 'assets/png/invert_power.png';
   static const String upDown = 'assets/png/upDown.png';
   static const String building = 'assets/png/building.png';
+  static const String bothside = 'assets/png/bothside.png';
+  static const String calender = 'assets/png/calender.png';
 }

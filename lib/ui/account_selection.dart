@@ -73,11 +73,13 @@ class _AccountSelectionState extends State<AccountSelection> {
         title: Text('Between My Accounts',
             style: _appTheme.customTextStyle(
                 color: _appTheme.whiteColor,
-                fontSize: 74,
+                fontSize: 70,
                 fontWeightType: FontWeightType.regular)),
         actions: [
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              Navigator.pop(context);
+            },
             child: Padding(
               padding: const EdgeInsets.only(right: 8.0),
               child: SvgPicture.asset(
@@ -125,7 +127,7 @@ class _AccountSelectionState extends State<AccountSelection> {
                               'From',
                               style: _appTheme.customTextStyle(
                                   fontWeightType: FontWeightType.regular,
-                                  fontSize: 55,
+                                  fontSize: MediaQuery.of(context).size.width/7,
                                   color: _appTheme.blackColor),
                             ),
                           ),
@@ -171,7 +173,7 @@ class _AccountSelectionState extends State<AccountSelection> {
                               'To',
                               style: _appTheme.customTextStyle(
                                   fontWeightType: FontWeightType.regular,
-                                  fontSize: 55,
+                                  fontSize: MediaQuery.of(context).size.width/7,
                                   color: _appTheme.blackColor),
                             ),
                           ),
@@ -208,7 +210,7 @@ class _AccountSelectionState extends State<AccountSelection> {
                                 'Integrated Deposits Account('+accountDataList[0].fromAccountNumber2.toString()+")",
                                 style: _appTheme.customTextStyle(
                                     fontWeightType: FontWeightType.regular,
-                                    fontSize: 55,
+                                    fontSize: MediaQuery.of(context).size.width/7,
                                     color: _appTheme.blackColor),
                               ),
                               Row(
@@ -217,14 +219,14 @@ class _AccountSelectionState extends State<AccountSelection> {
                                     'Balance HKD ',
                                     style: _appTheme.customTextStyle(
                                         fontWeightType: FontWeightType.regular,
-                                        fontSize: 55,
+                                        fontSize: MediaQuery.of(context).size.width/7,
                                         color: _appTheme.blackColor),
                                   ),
                                   Text(
                                     accountDataList[0].accountBalance2.toString(),
                                     style: _appTheme.customTextStyle(
                                         fontWeightType: FontWeightType.bold,
-                                        fontSize: 55,
+                                        fontSize: MediaQuery.of(context).size.width/7,
                                         color: _appTheme.blackColor),
                                   ),
                                 ],
@@ -265,13 +267,13 @@ class _AccountSelectionState extends State<AccountSelection> {
                         padding: EdgeInsets.only(bottom: 20.h,left: 30.w,right: 30.w),
                         child: InkWell(
                           onTap: (){
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>  BeforeAmount(
                                   fromAc: accountDataList[0].fromAccountNumber2,
                                   fromBal: accountDataList[0].accountBalance2,
-                                  toAc: accountDataList[index+1].fromAccountNumber2,
+                                  toAc: accountDataList[index+1].toAccountNumber2,
                                   toBal: accountDataList[index+1].accountBalance2,
                                   usdToHkd:accountDataList[index+1].usdToHkd2,
                                   hkd: accountDataList[index+1].hkdAmount1,
@@ -322,14 +324,14 @@ class _AccountSelectionState extends State<AccountSelection> {
                                               'Integrated Deposits Account...',
                                               style: _appTheme.customTextStyle(
                                                   fontWeightType: FontWeightType.regular,
-                                                  fontSize: 55,
+                                                  fontSize: MediaQuery.of(context).size.width/7,
                                                   color: _appTheme.blackColor),
                                             ),
                                             Text(
-                                              accountDataList[index+1].fromAccountNumber2.toString(),
+                                              accountDataList[index+1].toAccountNumber2.toString(),
                                               style: _appTheme.customTextStyle(
                                                   fontWeightType: FontWeightType.bold,
-                                                  fontSize: 55,
+                                                  fontSize: MediaQuery.of(context).size.width/7,
                                                   color: _appTheme.blackColor),
                                             ),
                                           ],
@@ -346,7 +348,7 @@ class _AccountSelectionState extends State<AccountSelection> {
                                             'HKD',
                                             style: _appTheme.customTextStyle(
                                                 fontWeightType: FontWeightType.regular,
-                                                fontSize: 45,
+                                                fontSize: MediaQuery.of(context).size.width/9,
                                                 color: _appTheme.blackColor),
                                           ),
                                           Padding(
@@ -355,7 +357,7 @@ class _AccountSelectionState extends State<AccountSelection> {
                                               accountDataList[index+1].accountBalance2.toString(),
                                               style: _appTheme.customTextStyle(
                                                   fontWeightType: FontWeightType.bold,
-                                                  fontSize: 50,
+                                                  fontSize: MediaQuery.of(context).size.width/8,
                                                   color: _appTheme.blackColor),
                                             ),
                                           ),
